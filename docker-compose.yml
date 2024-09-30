@@ -1,0 +1,33 @@
+version: '3.4'
+
+services:
+  nginx-service:
+    image: nginx:latest
+    ports:
+      - '80:80'
+    volumes:
+      # Заменить на свой nginx конфиг
+      - ./nginx:/etc/nginx/conf.d
+      # Монтируем папку с логами на хост машину для более удобного доступа
+      - ./logs:/var/log/nginx/
+    networks:
+      nginx_network: {}
+    restart: 
+      always
+
+  open-telemetry-service:
+    image: open-telemetry-service
+    depends_on:
+      - nginx-service
+    ports: 
+      - '5000:5000'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      nginx_network: {}
+    restart:
+      always
+
+networks:
+  nginx_network:
+    external: false
